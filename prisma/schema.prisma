@@ -1,24 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
     previewFeatures = ["jsonProtocol"]
 }
 
 datasource db {
-    provider = "sqlite"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
-}
-
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
 }
 
 // Necessary for Next auth
@@ -28,16 +16,17 @@ model Account {
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String? // @db.Text
+    id_token          String? @db.Text
     session_state     String?
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
+    @@index([userId])
 }
 
 model Session {
@@ -46,16 +35,8 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
 
-model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
+    @@index([userId])
 }
 
 model VerificationToken {
@@ -64,4 +45,136 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model User {
+    // Default rows needed for nextauth
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    accounts      Account[]
+    sessions      Session[]
+
+    role        String  @default("USER")
+    username    String? @unique
+    displayName String? @unique
+    bio         String? @db.Text
+    avatar      String  @default("/defaultUserImage.webp") @db.VarChar(255)
+
+    posts        Post[]
+    comments     Comment[]
+    commentLikes CommentLike[]
+    postLikes    PostLike[]
+    mentions     Mention[]
+    reports      Report[]
+    followedBy   Follows[]     @relation("following")
+    following    Follows[]     @relation("follower")
+}
+
+model Follows {
+    follower    User   @relation("follower", fields: [followerId], references: [id])
+    followerId  String
+    following   User   @relation("following", fields: [followingId], references: [id])
+    followingId String
+
+    @@id([followerId, followingId])
+    @@index([followingId])
+    @@index([followerId])
+}
+
+model Post {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    content   String   @db.Text
+
+    comments    Comment[]
+    postLikes   PostLike[]
+    postHashtag PostHashtag[]
+    mention     Mention[]
+    report      Report[]
+
+    @@index([userId])
+}
+
+model Comment {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    content   String   @db.Text
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId    String
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
+
+    commentLike CommentLike[]
+
+    @@index([userId])
+    @@index([postId])
+}
+
+model CommentLike {
+    createdAt DateTime @default(now())
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+    commentId String
+
+    @@id([userId, commentId])
+    @@index([commentId])
+    @@index([userId])
+}
+
+model PostLike {
+    createdAt DateTime @default(now())
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId    String
+
+    @@id([userId, postId])
+    @@index([userId])
+    @@index([postId])
+}
+
+model PostHashtag {
+    post        Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId      String
+    hashtag     Hashtag @relation(fields: [hashtagName], references: [hashtagName], onDelete: Cascade)
+    hashtagName String
+
+    @@id([postId, hashtagName])
+    @@index([postId])
+    @@index([hashtagName])
+}
+
+model Hashtag {
+    hashtagName String        @id
+    postHashtag PostHashtag[]
+}
+
+model Mention {
+    post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId   String
+    user     User   @relation(fields: [username], references: [username], onDelete: Cascade)
+    username String
+
+    @@id([postId, username])
+    @@index([postId])
+    @@index([username])
+}
+
+model Report {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId    String
+    reason    String   @db.Text
+
+    @@index([userId])
+    @@index([postId])
 }
