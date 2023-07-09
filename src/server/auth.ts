@@ -8,6 +8,7 @@ import {
 import Auth0Provider from "next-auth/providers/auth0";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+import type { UserRole } from "~/utils/types";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -19,8 +20,9 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
+      role: UserRole;
+      username: string | null;
+      displayName: string | null;
     } & DefaultSession["user"];
   }
 

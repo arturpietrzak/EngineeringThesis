@@ -57,11 +57,12 @@ model User {
     accounts      Account[]
     sessions      Session[]
 
-    role        String  @default("USER")
-    username    String? @unique
-    displayName String? @unique
-    bio         String? @db.Text
-    avatar      String  @default("/defaultUserImage.webp") @db.VarChar(255)
+    role        String   @default("USER")
+    username    String?  @unique
+    displayName String?  @unique
+    bio         String?  @db.Text
+    avatar      String   @default("/defaultUserImage.webp") @db.VarChar(255)
+    joinedAt    DateTime @default(now())
 
     posts        Post[]
     comments     Comment[]
