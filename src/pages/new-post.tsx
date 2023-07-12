@@ -1,4 +1,4 @@
-import { Button, Select, Stack } from "@mantine/core";
+import { Select, Stack } from "@mantine/core";
 import Head from "next/head";
 import { TextEditor } from "~/components/TextEditor";
 

@@ -81,6 +81,9 @@ export function ThemeManager({ children }: { children: React.ReactNode }) {
                       backgroundColor:
                         t.colorScheme === "dark" ? t.colors.dark[6] : t.white,
                     },
+                    ".embed-image": {
+                      width: "100%",
+                    },
                   },
                   content: {
                     overflowY: "scroll",

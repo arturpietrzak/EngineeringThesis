@@ -9,6 +9,7 @@ import { lowlight } from "lowlight";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import { Button } from "@mantine/core";
+import { IconMessage2Code } from "@tabler/icons-react";
 
 export function TextEditor({ onPost }: { onPost: (content: string) => void }) {
   const editor = useEditor({
@@ -27,7 +28,11 @@ export function TextEditor({ onPost }: { onPost: (content: string) => void }) {
       Link.configure({
         openOnClick: true,
       }),
-      Image.configure({}),
+      Image.configure({
+        HTMLAttributes: {
+          class: "embed-image",
+        },
+      }),
     ],
     editorProps: {
       handleDrop: function (view, event, slice, moved) {
@@ -108,7 +113,9 @@ export function TextEditor({ onPost }: { onPost: (content: string) => void }) {
             <RichTextEditor.Strikethrough />
             <RichTextEditor.ClearFormatting />
             <RichTextEditor.Code />
-            <RichTextEditor.CodeBlock />
+            <RichTextEditor.CodeBlock
+              icon={() => <IconMessage2Code size={18} stroke={1} />}
+            />
           </RichTextEditor.ControlsGroup>
 
           <RichTextEditor.ControlsGroup>
