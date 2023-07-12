@@ -19,16 +19,16 @@ import { useThemeContext } from "./ThemeManager";
 import { Notifications } from "@mantine/notifications";
 import Link from "next/link";
 import {
-  ArrowBackUp,
-  Flag,
-  Home,
-  ServerCog,
-  Settings,
-  TrendingUp,
-  Users,
-  Brightness,
-  Login,
-} from "tabler-icons-react";
+  IconArrowBackUp,
+  IconFlag,
+  IconHome,
+  IconServerCog,
+  IconSettings,
+  IconTrendingUp,
+  IconUsers,
+  IconBrightness,
+  IconLogin,
+} from "@tabler/icons-react";
 import Image from "next/image";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -104,7 +104,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       });
                     }}
                   >
-                    <Login size="1.25rem" style={{ marginRight: 4 }} />
+                    <IconLogin size="1.25rem" style={{ marginRight: 4 }} />
                     <span>Sign out</span>
                   </Button>
                 ) : (
@@ -114,7 +114,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       void signIn();
                     }}
                   >
-                    <Login size="1.25rem" style={{ marginRight: 4 }} />
+                    <IconLogin size="1.25rem" style={{ marginRight: 4 }} />
                     <span>Sign in</span>
                   </Button>
                 )}
@@ -125,7 +125,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   }}
                   style={{ flexGrow: 1 }}
                 >
-                  <Brightness size="1.25rem" style={{ marginRight: 4 }} />
+                  <IconBrightness size="1.25rem" style={{ marginRight: 4 }} />
                   <span>Theme</span>
                 </Button>
               </Flex>
@@ -234,17 +234,17 @@ function MainLinks() {
   ) {
     links = [
       {
-        icon: <ArrowBackUp size="2rem" strokeWidth={1} />,
+        icon: <IconArrowBackUp size="2rem" strokeWidth={1} />,
         label: "Main application",
         href: "/",
       },
       {
-        icon: <Flag size="2rem" strokeWidth={1} />,
+        icon: <IconFlag size="2rem" strokeWidth={1} />,
         label: "Resolve reports",
         href: "/admin/reports",
       },
       {
-        icon: <Users size="2rem" strokeWidth={1} />,
+        icon: <IconUsers size="2rem" strokeWidth={1} />,
         label: "Manage users",
         href: "/admin/users",
       },
@@ -252,17 +252,17 @@ function MainLinks() {
   } else if (session.data?.user.role === "ADMIN") {
     links = [
       {
-        icon: <Home size="2rem" strokeWidth={1} />,
+        icon: <IconHome size="2rem" strokeWidth={1} />,
         label: "Home",
         href: "/",
       },
       {
-        icon: <TrendingUp size="2rem" strokeWidth={1} />,
+        icon: <IconTrendingUp size="2rem" strokeWidth={1} />,
         label: "Trending",
         href: "/trending",
       },
       {
-        icon: <Settings size="2rem" strokeWidth={1} />,
+        icon: <IconSettings size="2rem" strokeWidth={1} />,
         label: "Settings",
         href: "/settings",
       },
@@ -282,7 +282,7 @@ function MainLinks() {
         href: `/user/${session.data?.user.username ?? ""}`,
       },
       {
-        icon: <ServerCog size="2rem" strokeWidth={1} />,
+        icon: <IconServerCog size="2rem" strokeWidth={1} />,
         label: "Admin panel",
         href: "/admin/reports",
       },
@@ -290,17 +290,17 @@ function MainLinks() {
   } else if (session.data?.user.role === "USER") {
     links = [
       {
-        icon: <Home size="2rem" strokeWidth={1} />,
+        icon: <IconHome size="2rem" strokeWidth={1} />,
         label: "Home",
         href: "/",
       },
       {
-        icon: <TrendingUp size="2rem" strokeWidth={1} />,
+        icon: <IconTrendingUp size="2rem" strokeWidth={1} />,
         label: "Trending",
         href: "/trending",
       },
       {
-        icon: <Settings size="2rem" strokeWidth={1} />,
+        icon: <IconSettings size="2rem" strokeWidth={1} />,
         label: "Settings",
         href: "/settings",
       },
@@ -323,12 +323,12 @@ function MainLinks() {
   } else {
     links = [
       {
-        icon: <Home size="2rem" strokeWidth={1} />,
+        icon: <IconHome size="2rem" strokeWidth={1} />,
         label: "Home",
         href: "/",
       },
       {
-        icon: <TrendingUp size="2rem" strokeWidth={1} />,
+        icon: <IconTrendingUp size="2rem" strokeWidth={1} />,
         label: "Trending",
         href: "/trending",
       },
