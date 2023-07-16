@@ -98,9 +98,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     style={{ flexGrow: 1 }}
                     onClick={() => {
                       void signOut({
-                        callbackUrl: `https://${
-                          process.env.NEXT_PUBLIC_AUTH0_DOMAIN ?? ""
-                        }/v2/logout`,
+                        callbackUrl:
+                          process.env.NEXT_PUBLIC_LOGOUT_CALLBACK_URL,
                       });
                     }}
                   >

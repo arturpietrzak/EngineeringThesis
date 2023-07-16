@@ -160,7 +160,7 @@ export const userRouter = createTRPCRouter({
           bio: userInDb.bio ?? undefined,
           imageUrl: userInDb.avatar,
           displayName: userInDb.displayName ?? "",
-          joinedAt: moment(userInDb.joinedAt).format("dd/mm/yyyy, HH:MM:ss"),
+          joinedAt: moment(userInDb.joinedAt).format("LL"),
           followers: userInDb._count.followedBy,
           following: userInDb._count.following,
           posts: userInDb._count.posts,

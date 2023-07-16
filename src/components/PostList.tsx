@@ -58,9 +58,6 @@ export function PostList({ posts, refetch }: PostListProps) {
         /> */}
         {posts.map((p) => (
           <Post
-            onLikeClick={function (): void {
-              throw new Error("Function not implemented.");
-            }}
             key={p.id}
             {...p}
             onReportClick={() => {
@@ -91,7 +88,6 @@ interface PostProps {
   likesCount: number;
   commentsCount: number;
   liked: boolean;
-  onLikeClick: () => void;
   onRemoveClick: () => void;
   onReportClick: () => void;
 }
@@ -106,7 +102,6 @@ function Post({
   likesCount,
   commentsCount,
   liked,
-  onLikeClick,
   onRemoveClick,
   onReportClick,
 }: PostProps) {
@@ -137,6 +132,10 @@ function Post({
     ],
   });
 
+  const likePostMutation = api.post.like.useMutation();
+  const unlikePostMutation = api.post.unlike.useMutation();
+  const [isLiked, setIsLiked] = useState<boolean>(liked);
+
   const [
     reportModalOpened,
     { open: openReportModal, close: closeReportModal },
@@ -165,52 +164,68 @@ function Post({
           t.colorScheme === "dark" ? t.colors.dark[4] : t.colors.gray[4]
         }`,
       })}
-      spacing="sm"
-      p={16}
     >
-      {/* <ReportPostModal
+      <Stack p={16} spacing="sm">
+        {/* <ReportPostModal
         postId={id}
         opened={reportModalOpened}
         onClose={closeReportModal}
       /> */}
-      <PostInfoHeader
-        userImage={userImage}
-        displayName={displayName}
-        username={username}
-        createdAt={createdAt}
-      />
-      <RichTextEditor
-        editor={editor}
-        sx={{
-          border: "0",
-          ".ProseMirror": {
-            padding: "0 !important",
-            backgroundColor: "transparent !important",
-          },
-          ".mantine-RichTextEditor-content": {
-            backgroundColor: "transparent ",
-            maxHeight: "unset !important",
-          },
-          pre: {
-            background: `${
-              theme.colorScheme === "dark"
-                ? theme.colors.dark[7]
-                : theme.colors.gray[1]
-            } !important`,
-          },
+        <PostInfoHeader
+          userImage={userImage}
+          displayName={displayName}
+          username={username}
+          createdAt={createdAt}
+        />
+        <RichTextEditor
+          editor={editor}
+          sx={{
+            border: "0",
+            ".ProseMirror": {
+              padding: "0 !important",
+              backgroundColor: "transparent !important",
+            },
+            ".mantine-RichTextEditor-content": {
+              backgroundColor: "transparent ",
+              maxHeight: "unset !important",
+            },
+            pre: {
+              background: `${
+                theme.colorScheme === "dark"
+                  ? theme.colors.dark[7]
+                  : theme.colors.gray[1]
+              } !important`,
+            },
+          }}
+          withCodeHighlightStyles
+        >
+          <RichTextEditor.Content />
+        </RichTextEditor>
+        <PostReactionsFooter
+          likesCount={likesCount - Number(liked) + Number(isLiked)}
+          commentsCount={commentsCount}
+          liked={isLiked}
+          onLikeClick={() => {
+            if (isLiked) {
+              unlikePostMutation.mutate({ postId: id });
+            } else {
+              likePostMutation.mutate({ postId: id });
+            }
+
+            setIsLiked((prev) => !prev);
+          }}
+          onReportClick={openReportModal}
+          onEditClick={openEditModal}
+          onRemoveClick={onRemoveClick}
+        />
+      </Stack>
+      <Link
+        href={`/post/${id}`}
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "absolute",
         }}
-        withCodeHighlightStyles
-      >
-        <RichTextEditor.Content />
-      </RichTextEditor>
-      <PostReactionsFooter
-        likesCount={likesCount}
-        commentsCount={commentsCount}
-        liked={liked}
-        onLikeClick={onLikeClick}
-        onReportClick={openReportModal}
-        onEditClick={openEditModal}
-        onRemoveClick={onRemoveClick}
       />
     </Stack>
   );
