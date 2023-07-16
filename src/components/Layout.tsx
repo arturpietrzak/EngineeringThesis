@@ -173,7 +173,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <Container
             mih="100lvh"
             p={16}
-            size="sm"
+            size="md"
             sx={{ boxSizing: "border-box" }}
           >
             {children}
