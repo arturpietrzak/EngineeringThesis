@@ -1,8 +1,11 @@
 import { Select, Stack } from "@mantine/core";
 import Head from "next/head";
 import { TextEditor } from "~/components/TextEditor";
+import { api } from "~/utils/api";
 
-export default function NewPost() {
+export default function NewPostPage() {
+  const postCreateMutation = api.post.create.useMutation();
+
   return (
     <>
       <Head>
@@ -18,7 +21,11 @@ export default function NewPost() {
         />
         <TextEditor
           onPost={(content) => {
-            console.log(content);
+            void (async () => {
+              await postCreateMutation.mutateAsync({
+                content: content,
+              });
+            })();
           }}
         />
       </Stack>
