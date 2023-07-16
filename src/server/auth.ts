@@ -39,13 +39,24 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.id = user.id;
+        const userInDb = await prisma.user.findUniqueOrThrow({
+          where: { id: user.id },
+        });
+
+        session.user.role = userInDb.role as UserRole;
+        session.user.username = userInDb.username ?? null;
+        session.user.image = userInDb.avatar ?? "/defaultUserImage.webp";
+        session.user.displayName = userInDb.displayName ?? null;
+        // session.user.role = user.role; <-- put other properties on the session here
+      }
+      return session;
+    },
+    async redirect({ url }) {
+      return Promise.resolve(url);
+    },
   },
   adapter: PrismaAdapter(prisma),
   providers: [
