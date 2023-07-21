@@ -1,10 +1,12 @@
 import { Select, Stack } from "@mantine/core";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { TextEditor } from "~/components/TextEditor";
 import { api } from "~/utils/api";
 
 export default function NewPostPage() {
   const postCreateMutation = api.post.create.useMutation();
+  const router = useRouter();
 
   return (
     <>
@@ -20,12 +22,12 @@ export default function NewPostPage() {
           data={["Scientific", "Essay", "Discussion"]}
         />
         <TextEditor
-          onPost={(content) => {
-            void (async () => {
-              await postCreateMutation.mutateAsync({
-                content: content,
-              });
-            })();
+          onPost={async (content, hashtags) => {
+            const { postId } = await postCreateMutation.mutateAsync({
+              content: content,
+              hashtags: hashtags,
+            });
+            void router.push(`/post/${postId}`);
           }}
         />
       </Stack>

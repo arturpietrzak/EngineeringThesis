@@ -8,10 +8,45 @@ import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { lowlight } from "lowlight";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
-import { Button } from "@mantine/core";
+import { Button, Input, Stack } from "@mantine/core";
 import { IconMessage2Code } from "@tabler/icons-react";
+import { useForm, zodResolver } from "@mantine/form";
+import { z } from "zod";
 
-export function TextEditor({ onPost }: { onPost: (content: string) => void }) {
+export function TextEditor({
+  onPost,
+}: {
+  onPost: (content: string, hashtags: string) => void;
+}) {
+  const form = useForm({
+    validate: zodResolver(
+      z.object({
+        hashtags: z.string().refine((arg) => {
+          if (arg === "") {
+            return true;
+          }
+
+          const regexResult =
+            /(#[a-zA-Z0-9_]{1,32})+( #[a-zA-Z0-9_]{1,32}){0,4}/.exec(arg);
+
+          if (!regexResult) {
+            return false;
+          }
+
+          if (regexResult[0] !== arg) {
+            return false;
+          }
+
+          return true;
+        }),
+      })
+    ),
+    validateInputOnChange: true,
+    initialValues: {
+      hashtags: "",
+    },
+  });
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -81,7 +116,7 @@ export function TextEditor({ onPost }: { onPost: (content: string) => void }) {
                 }
               })
               .finally(() => {
-                console.log("elo");
+                undefined;
               });
           } else {
             window.alert(
@@ -103,58 +138,63 @@ export function TextEditor({ onPost }: { onPost: (content: string) => void }) {
   });
 
   return (
-    <>
-      <RichTextEditor editor={editor} withCodeHighlightStyles>
-        <RichTextEditor.Toolbar sticky stickyOffset={0}>
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Bold />
-            <RichTextEditor.Italic />
-            <RichTextEditor.Underline />
-            <RichTextEditor.Strikethrough />
-            <RichTextEditor.ClearFormatting />
-            <RichTextEditor.Code />
-            <RichTextEditor.CodeBlock
-              icon={() => <IconMessage2Code size={18} stroke={1} />}
-            />
-          </RichTextEditor.ControlsGroup>
+    <form
+      onSubmit={form.onSubmit((values) => {
+        onPost(editor?.getHTML() ?? "", String(values["hashtags"]));
+      })}
+    >
+      <Stack>
+        <RichTextEditor editor={editor} withCodeHighlightStyles>
+          <RichTextEditor.Toolbar sticky stickyOffset={0}>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Bold />
+              <RichTextEditor.Italic />
+              <RichTextEditor.Underline />
+              <RichTextEditor.Strikethrough />
+              <RichTextEditor.ClearFormatting />
+              <RichTextEditor.Code />
+              <RichTextEditor.CodeBlock
+                icon={() => <IconMessage2Code size={18} stroke={1} />}
+              />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.H1 />
-            <RichTextEditor.H2 />
-            <RichTextEditor.H3 />
-            <RichTextEditor.H4 />
-          </RichTextEditor.ControlsGroup>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.H1 />
+              <RichTextEditor.H2 />
+              <RichTextEditor.H3 />
+              <RichTextEditor.H4 />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Blockquote />
-            <RichTextEditor.Hr />
-            <RichTextEditor.BulletList />
-            <RichTextEditor.OrderedList />
-          </RichTextEditor.ControlsGroup>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Blockquote />
+              <RichTextEditor.Hr />
+              <RichTextEditor.BulletList />
+              <RichTextEditor.OrderedList />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.Link />
-            <RichTextEditor.Unlink />
-          </RichTextEditor.ControlsGroup>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Link />
+              <RichTextEditor.Unlink />
+            </RichTextEditor.ControlsGroup>
 
-          <RichTextEditor.ControlsGroup>
-            <RichTextEditor.AlignLeft />
-            <RichTextEditor.AlignCenter />
-            <RichTextEditor.AlignJustify />
-            <RichTextEditor.AlignRight />
-          </RichTextEditor.ControlsGroup>
-        </RichTextEditor.Toolbar>
+            <RichTextEditor.ControlsGroup>
+              <RichTextEditor.AlignLeft />
+              <RichTextEditor.AlignCenter />
+              <RichTextEditor.AlignJustify />
+              <RichTextEditor.AlignRight />
+            </RichTextEditor.ControlsGroup>
+          </RichTextEditor.Toolbar>
 
-        <RichTextEditor.Content />
-      </RichTextEditor>
-      <Button
-        onClick={() => {
-          onPost(editor?.getHTML() ?? "");
-        }}
-        style={{ alignSelf: "flex-end" }}
-      >
-        Post
-      </Button>
-    </>
+          <RichTextEditor.Content />
+        </RichTextEditor>
+        <Input
+          placeholder="Up to five tags, space-separated, e.g. #physics #new_discovery #space"
+          {...form.getInputProps("hashtags")}
+        />
+        <Button type="submit" style={{ alignSelf: "flex-end" }}>
+          Post
+        </Button>
+      </Stack>
+    </form>
   );
 }

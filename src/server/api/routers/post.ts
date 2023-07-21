@@ -249,7 +249,7 @@ export const postRouter = createTRPCRouter({
       LEFT JOIN Post as p
       ON p.id = ph.postId
       WHERE p.createdAt > ${moment(trendingMinDate).format(
-        "yyyy-mm-dd, HH:MM:ss.l"
+        "YYYY-MM-DD, HH:mm:ss.SSS"
       )}
       GROUP BY h.hashtagName
       `;
@@ -349,8 +349,17 @@ export const postRouter = createTRPCRouter({
       };
     }),
   create: protectedProcedure
-    .input(z.object({ content: z.string() }))
-    .mutation(async ({ ctx, input: { content } }) => {
+    .input(z.object({ content: z.string(), hashtags: z.string() }))
+    .mutation(async ({ ctx, input: { content, hashtags } }) => {
+      const extractedHashtags = extractUniqueHashtags(hashtags);
+
+      if (extractedHashtags.length > 5) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: errorMessages.BAD_REQUEST,
+        });
+      }
+
       const postInDb = await ctx.prisma.post.create({
         data: {
           content: content,
@@ -358,9 +367,7 @@ export const postRouter = createTRPCRouter({
         },
       });
 
-      const hashtags = extractUniqueHashtags(content);
-
-      hashtags.map(async (h) => {
+      extractedHashtags.map(async (h) => {
         const hashtagInDb = await ctx.prisma.hashtag.findUnique({
           where: {
             hashtagName: h,
@@ -382,6 +389,10 @@ export const postRouter = createTRPCRouter({
           },
         });
       });
+
+      return {
+        postId: postInDb.id,
+      };
     }),
   delete: protectedProcedure
     .input(z.object({ postId: z.string() }))

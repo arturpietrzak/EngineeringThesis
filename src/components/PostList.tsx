@@ -18,11 +18,11 @@ import { Link as TiptapLink } from "@tiptap/extension-link";
 import { lowlight } from "lowlight";
 import { Image as TiptapImage } from "@tiptap/extension-image";
 import { useDisclosure } from "@mantine/hooks";
-import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import { useEffect, useState } from "react";
 import { RichTextEditor } from "@mantine/tiptap";
 import { useSession } from "next-auth/react";
+import { ReportPostModal } from "./ReportPostModal";
 
 interface PostListProps {
   posts: Omit<PostProps, "onReportClick" | "onLikeClick" | "onRemoveClick">[];
@@ -36,10 +36,6 @@ export function PostList({ posts, refetch }: PostListProps) {
     { open: openReportModal, close: closeReportModal },
   ] = useDisclosure(false);
 
-  const [editPostId, setEditPostId] = useState("");
-  const [editModalOpened, { open: openEditModal, close: closeEditModal }] =
-    useDisclosure(false);
-
   const { mutateAsync: deletePostMutation } = api.post.delete.useMutation();
 
   const { data } = useSession();
@@ -47,7 +43,7 @@ export function PostList({ posts, refetch }: PostListProps) {
   if (posts.length) {
     return (
       <Stack>
-        {/* <ReportPostModal
+        <ReportPostModal
           onClose={() => {
             closeReportModal();
             setReportedPostId("");
@@ -55,7 +51,7 @@ export function PostList({ posts, refetch }: PostListProps) {
           }}
           opened={reportModalOpened}
           postId={reportedPostId}
-        /> */}
+        />
         {posts.map((p) => (
           <Post
             key={p.id}
@@ -136,18 +132,6 @@ function Post({
   const unlikePostMutation = api.post.unlike.useMutation();
   const [isLiked, setIsLiked] = useState<boolean>(liked);
 
-  const [
-    reportModalOpened,
-    { open: openReportModal, close: closeReportModal },
-  ] = useDisclosure(false);
-
-  const [editModalOpened, { open: openEditModal, close: closeEditModal }] =
-    useDisclosure(false);
-
-  const { mutateAsync: deletePostMutation } = api.post.delete.useMutation();
-
-  const router = useRouter();
-
   useEffect(() => {
     if (editor && !editor.isDestroyed) {
       editor.commands.setContent(content);
@@ -163,14 +147,10 @@ function Post({
         border: `0.0625rem solid ${
           t.colorScheme === "dark" ? t.colors.dark[4] : t.colors.gray[4]
         }`,
+        position: "relative",
       })}
     >
       <Stack p={16} spacing="sm">
-        {/* <ReportPostModal
-        postId={id}
-        opened={reportModalOpened}
-        onClose={closeReportModal}
-      /> */}
         <PostInfoHeader
           userImage={userImage}
           displayName={displayName}
@@ -214,8 +194,7 @@ function Post({
 
             setIsLiked((prev) => !prev);
           }}
-          onReportClick={openReportModal}
-          onEditClick={openEditModal}
+          onReportClick={onReportClick}
           onRemoveClick={onRemoveClick}
         />
       </Stack>
@@ -284,7 +263,7 @@ interface PostReactionsFooterProps {
   onRemoveClick?: () => void;
 }
 
-function PostReactionsFooter({
+export function PostReactionsFooter({
   likesCount,
   commentsCount,
   liked,
