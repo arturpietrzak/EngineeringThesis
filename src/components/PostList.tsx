@@ -192,7 +192,11 @@ function Post({
               align="flex-end"
               sx={(t) => ({
                 position: "absolute",
-                background: `linear-gradient(0deg, ${t.colors.dark[6]} 30%, ${t.colors.dark[6]}00 100%)`,
+                background: `linear-gradient(0deg, ${
+                  t.colorScheme === "dark" ? t.colors.dark[6] : "#ffffff"
+                } 30%, ${
+                  t.colorScheme === "dark" ? t.colors.dark[6] : "#ffffff"
+                }00 100%)`,
                 top: 0,
                 left: 0,
                 height: "100%",
