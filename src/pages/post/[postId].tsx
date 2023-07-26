@@ -34,7 +34,7 @@ export default function PostPage({ postId }: PostPagePropsType) {
       <Head>
         <title>Grumbler | {postData.post.displayName}&apos;s post</title>
       </Head>
-      <Stack spacing={48}>
+      <Stack spacing={16}>
         <Post
           {...postData.post}
           onLikeClick={function (): void {

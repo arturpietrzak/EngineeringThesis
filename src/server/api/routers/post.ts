@@ -550,9 +550,10 @@ export const postRouter = createTRPCRouter({
       z.object({
         postId: z.string(),
         reason: z.string(),
+        category: z.string(),
       })
     )
-    .mutation(async ({ ctx, input: { postId, reason } }) => {
+    .mutation(async ({ ctx, input: { postId, reason, category } }) => {
       const reportInDb = await ctx.prisma.report.findFirst({
         where: {
           userId: ctx.session.user.id,
@@ -566,6 +567,7 @@ export const postRouter = createTRPCRouter({
             userId: ctx.session.user.id,
             postId,
             reason,
+            category,
           },
         });
       }

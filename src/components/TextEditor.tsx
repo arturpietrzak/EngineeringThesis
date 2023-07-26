@@ -15,8 +15,10 @@ import { z } from "zod";
 
 export function TextEditor({
   onPost,
+  isEdit,
 }: {
   onPost: (content: string, hashtags: string) => void;
+  isEdit?: boolean;
 }) {
   const form = useForm({
     validate: zodResolver(
@@ -187,12 +189,14 @@ export function TextEditor({
 
           <RichTextEditor.Content />
         </RichTextEditor>
-        <Input
-          placeholder="Up to five tags, space-separated, e.g. #physics #new_discovery #space"
-          {...form.getInputProps("hashtags")}
-        />
+        {!isEdit && (
+          <Input
+            placeholder="Up to five tags, space-separated, e.g. #physics #new_discovery #space"
+            {...form.getInputProps("hashtags")}
+          />
+        )}
         <Button type="submit" style={{ alignSelf: "flex-end" }}>
-          Post
+          {isEdit ? "Save changes" : "Post"}
         </Button>
       </Stack>
     </form>

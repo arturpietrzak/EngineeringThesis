@@ -3,6 +3,7 @@ import Head from "next/head";
 import { Loader } from "~/components/Loader";
 import { PostList } from "~/components/PostList";
 import { api } from "~/utils/api";
+import { NewPostLink } from "~/components/NewPostLink";
 
 export default function Home() {
   const {
@@ -29,6 +30,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+        <NewPostLink />
         <PostList
           posts={postsData.pages.map((p) => p.posts).flat(1)}
           refetch={() => {

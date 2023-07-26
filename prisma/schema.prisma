@@ -1,6 +1,5 @@
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["jsonProtocol"]
+    provider = "prisma-client-js"
 }
 
 datasource db {
@@ -175,6 +174,7 @@ model Report {
     post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
     postId    String
     reason    String   @db.Text
+    category  String   @db.Text
 
     @@index([userId])
     @@index([postId])

@@ -41,7 +41,7 @@ export default function UserPage({ username }: UserPagePropsType) {
       <Head>
         <title>Grumbler | {userData.pages[0]?.user.displayName}</title>
       </Head>
-      <Stack spacing={48}>
+      <Stack spacing={16}>
         <UserHeader
           // eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
           {...userData.pages[0]!.user}

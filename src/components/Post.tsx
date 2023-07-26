@@ -13,6 +13,8 @@ import { api } from "~/utils/api";
 import Image from "@tiptap/extension-image";
 import { PostInfoHeader, PostReactionsFooter } from "./PostList";
 import { RichTextEditor } from "@mantine/tiptap";
+import { ReportPostModal } from "./ReportPostModal";
+import { useSession } from "next-auth/react";
 
 interface PostProps {
   id: string;
@@ -70,12 +72,10 @@ export function Post({
     { open: openReportModal, close: closeReportModal },
   ] = useDisclosure(false);
 
-  const [editModalOpened, { open: openEditModal, close: closeEditModal }] =
-    useDisclosure(false);
-
   const { mutateAsync: deletePostMutation } = api.post.delete.useMutation();
 
   const router = useRouter();
+  const { data } = useSession();
 
   useEffect(() => {
     if (editor && !editor.isDestroyed) {
@@ -95,11 +95,11 @@ export function Post({
       spacing="sm"
       p={16}
     >
-      {/* <ReportPostModal
+      <ReportPostModal
         postId={id}
         opened={reportModalOpened}
         onClose={closeReportModal}
-      /> */}
+      />
       <PostInfoHeader
         userImage={imageUrl}
         displayName={displayName}
@@ -131,16 +131,20 @@ export function Post({
         <RichTextEditor.Content />
       </RichTextEditor>
       <PostReactionsFooter
+        postId={id}
         likesCount={likesCount}
         commentsCount={commentsCount}
         liked={liked}
         onLikeClick={onLikeClick}
         onReportClick={openReportModal}
-        onEditClick={openEditModal}
-        onRemoveClick={async () => {
-          await deletePostMutation({ postId: id });
-          await router.push("/");
-        }}
+        onRemoveClick={
+          data?.user.username === username
+            ? async () => {
+                await deletePostMutation({ postId: id });
+                void router.push("/");
+              }
+            : undefined
+        }
       />
     </Stack>
   );

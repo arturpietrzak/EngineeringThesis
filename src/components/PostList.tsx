@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { RichTextEditor } from "@mantine/tiptap";
 import { useSession } from "next-auth/react";
 import { ReportPostModal } from "./ReportPostModal";
+import { useElementSize } from "@mantine/hooks";
 
 interface PostListProps {
   posts: Omit<PostProps, "onReportClick" | "onLikeClick" | "onRemoveClick">[];
@@ -37,7 +38,6 @@ export function PostList({ posts, refetch }: PostListProps) {
   ] = useDisclosure(false);
 
   const { mutateAsync: deletePostMutation } = api.post.delete.useMutation();
-
   const { data } = useSession();
 
   if (posts.length) {
@@ -60,11 +60,15 @@ export function PostList({ posts, refetch }: PostListProps) {
               setReportedPostId(p.id);
               openReportModal();
             }}
-            onRemoveClick={() => {
-              void deletePostMutation({ postId: p.id }).then(() => {
-                refetch();
-              });
-            }}
+            onRemoveClick={
+              data?.user.username === p.username
+                ? () => {
+                    void deletePostMutation({ postId: p.id }).then(() => {
+                      refetch();
+                    });
+                  }
+                : undefined
+            }
           />
         ))}
       </Stack>
@@ -84,7 +88,7 @@ interface PostProps {
   likesCount: number;
   commentsCount: number;
   liked: boolean;
-  onRemoveClick: () => void;
+  onRemoveClick?: () => void;
   onReportClick: () => void;
 }
 
@@ -127,10 +131,12 @@ function Post({
       }),
     ],
   });
-
+  const { ref, height } = useElementSize();
   const likePostMutation = api.post.like.useMutation();
   const unlikePostMutation = api.post.unlike.useMutation();
   const [isLiked, setIsLiked] = useState<boolean>(liked);
+
+  console.log(height);
 
   useEffect(() => {
     if (editor && !editor.isDestroyed) {
@@ -138,7 +144,6 @@ function Post({
     }
   }, [content, editor]);
 
-  // TODO: Add edit post link
   return (
     <Stack
       sx={(t) => ({
@@ -164,6 +169,7 @@ function Post({
             ".ProseMirror": {
               padding: "0 !important",
               backgroundColor: "transparent !important",
+              maxHeight: 600,
             },
             ".mantine-RichTextEditor-content": {
               backgroundColor: "transparent ",
@@ -179,9 +185,28 @@ function Post({
           }}
           withCodeHighlightStyles
         >
-          <RichTextEditor.Content />
+          <RichTextEditor.Content ref={ref} />
+          {height >= 600 && (
+            <Flex
+              justify="center"
+              align="flex-end"
+              sx={(t) => ({
+                position: "absolute",
+                background: `linear-gradient(0deg, ${t.colors.dark[6]} 30%, ${t.colors.dark[6]}00 100%)`,
+                top: 0,
+                left: 0,
+                height: "100%",
+                width: "100%",
+              })}
+            >
+              <Text size="lg" mb={16}>
+                Click to read full post
+              </Text>
+            </Flex>
+          )}
         </RichTextEditor>
         <PostReactionsFooter
+          postId={id}
           likesCount={likesCount - Number(liked) + Number(isLiked)}
           commentsCount={commentsCount}
           liked={isLiked}
@@ -254,12 +279,12 @@ export function PostInfoHeader({
 }
 
 interface PostReactionsFooterProps {
+  postId: string;
   likesCount: number;
   commentsCount: number;
   liked: boolean;
   onLikeClick: () => void;
   onReportClick: () => void;
-  onEditClick?: () => void;
   onRemoveClick?: () => void;
 }
 
@@ -267,10 +292,10 @@ export function PostReactionsFooter({
   likesCount,
   commentsCount,
   liked,
+  postId,
   onLikeClick,
   onReportClick,
   onRemoveClick,
-  onEditClick,
 }: PostReactionsFooterProps) {
   const theme = useMantineTheme();
 
@@ -313,7 +338,7 @@ export function PostReactionsFooter({
         </Text>
       </Group>
       <Group>
-        {onEditClick && onRemoveClick ? (
+        {onRemoveClick ? (
           <>
             <Text
               onClick={(e) => {
@@ -328,19 +353,18 @@ export function PostReactionsFooter({
             >
               <IconX />
             </Text>
-            <Text
-              onClick={(e) => {
-                e.preventDefault();
-                onEditClick();
-              }}
-              sx={{
+            <Link
+              href={`/edit/${postId}`}
+              style={{
                 cursor: "pointer",
                 userSelect: "none",
                 zIndex: 1,
               }}
             >
-              <IconEdit />
-            </Text>
+              <Text>
+                <IconEdit />
+              </Text>
+            </Link>
           </>
         ) : (
           <Text

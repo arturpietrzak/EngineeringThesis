@@ -28,7 +28,7 @@ export default function TrendingPage() {
       <Head>
         <title>Grumbler | Trending</title>
       </Head>
-      <Stack spacing={48}>
+      <Stack spacing={16}>
         <TrendingHashtags
           trendingHashtags={trendingData.pages[0]?.trendingHashtags ?? []}
         />
