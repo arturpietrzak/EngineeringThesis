@@ -137,8 +137,8 @@ function Comment({
             </Text>
             <IconHeart
               style={{
-                fill: isLiked ? theme.colors.teal[6] : undefined,
-                stroke: isLiked ? theme.colors.teal[6] : undefined,
+                fill: isLiked ? theme.colors.blue[6] : undefined,
+                stroke: isLiked ? theme.colors.blue[6] : undefined,
               }}
             />
           </Group>

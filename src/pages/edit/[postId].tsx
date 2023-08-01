@@ -33,6 +33,7 @@ export default function PostPage({ postId }: EditPagePropsType) {
       </Head>
       <Stack spacing={16}>
         <TextEditor
+          initialValue={postData.post.content}
           isEdit
           onPost={async (content) => {
             await updatePostMutation.mutateAsync({ postId, content });

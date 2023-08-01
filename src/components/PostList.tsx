@@ -26,7 +26,7 @@ import { ReportPostModal } from "./ReportPostModal";
 import { useElementSize } from "@mantine/hooks";
 
 interface PostListProps {
-  posts: Omit<PostProps, "onReportClick" | "onLikeClick" | "onRemoveClick">[];
+  posts: Omit<PostProps, "onReportClick" | "onRemoveClick">[];
   refetch: () => void;
 }
 
@@ -88,6 +88,8 @@ interface PostProps {
   likesCount: number;
   commentsCount: number;
   liked: boolean;
+  likeButtonActive: boolean;
+  hashtags: string[];
   onRemoveClick?: () => void;
   onReportClick: () => void;
 }
@@ -102,6 +104,8 @@ function Post({
   likesCount,
   commentsCount,
   liked,
+  hashtags,
+  likeButtonActive,
   onRemoveClick,
   onReportClick,
 }: PostProps) {
@@ -136,8 +140,6 @@ function Post({
   const unlikePostMutation = api.post.unlike.useMutation();
   const [isLiked, setIsLiked] = useState<boolean>(liked);
 
-  console.log(height);
-
   useEffect(() => {
     if (editor && !editor.isDestroyed) {
       editor.commands.setContent(content);
@@ -147,6 +149,7 @@ function Post({
   return (
     <Stack
       sx={(t) => ({
+        opacity: height === 0 ? 0 : 1,
         backgroundColor: t.colorScheme === "dark" ? t.colors.dark[6] : t.white,
         borderRadius: t.radius.sm,
         border: `0.0625rem solid ${
@@ -162,6 +165,14 @@ function Post({
           username={username}
           createdAt={createdAt}
         />
+        <Group>
+          {hashtags.length &&
+            hashtags.map((h) => (
+              <Link href={`/hashtag/${h}`} key={h} style={{ zIndex: 2 }}>
+                <Text c="blue.5">#{h}</Text>
+              </Link>
+            ))}
+        </Group>
         <RichTextEditor
           editor={editor}
           sx={{
@@ -170,6 +181,7 @@ function Post({
               padding: "0 !important",
               backgroundColor: "transparent !important",
               maxHeight: 600,
+              overflow: "hidden",
             },
             ".mantine-RichTextEditor-content": {
               backgroundColor: "transparent ",
@@ -215,6 +227,10 @@ function Post({
           commentsCount={commentsCount}
           liked={isLiked}
           onLikeClick={() => {
+            if (!likeButtonActive) {
+              return;
+            }
+
             if (isLiked) {
               unlikePostMutation.mutate({ postId: id });
             } else {
@@ -322,8 +338,8 @@ export function PostReactionsFooter({
             <Text size="xl">{likesCount}</Text>
             <IconHeart
               style={{
-                fill: liked ? theme.colors.teal[6] : undefined,
-                stroke: liked ? theme.colors.teal[6] : undefined,
+                fill: liked ? theme.colors.blue[6] : undefined,
+                stroke: liked ? theme.colors.blue[6] : undefined,
               }}
             />
           </Flex>

@@ -4,6 +4,7 @@
  *
  * We also create a few inference helpers for input and output types.
  */
+import { notifications } from "@mantine/notifications";
 import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
@@ -20,18 +21,7 @@ const getBaseUrl = () => {
 export const api = createTRPCNext<AppRouter>({
   config() {
     return {
-      /**
-       * Transformer used for data de-serialization from the server.
-       *
-       * @see https://trpc.io/docs/data-transformers
-       */
       transformer: superjson,
-
-      /**
-       * Links used to determine request flow from client to server.
-       *
-       * @see https://trpc.io/docs/links
-       */
       links: [
         loggerLink({
           enabled: (opts) =>
@@ -42,6 +32,26 @@ export const api = createTRPCNext<AppRouter>({
           url: `${getBaseUrl()}/api/trpc`,
         }),
       ],
+      queryClientConfig: {
+        defaultOptions: {
+          queries: {
+            refetchOnReconnect: false,
+            refetchOnWindowFocus: false,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onError: (error: any) => {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+              notifications.show({ message: error.message, color: "red" });
+            },
+          },
+          mutations: {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onError: (error: any) => {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+              notifications.show({ message: error.message, color: "red" });
+            },
+          },
+        },
+      },
     };
   },
   /**

@@ -121,7 +121,7 @@ export default function SettingsPage() {
           </form>
         </Tabs.Panel>
         <Tabs.Panel value="image" pt="xs">
-          <Text size={14} weight="500" style={{ lineHeight: "26px" }}>
+          <Text weight="500" style={{ lineHeight: "26px" }}>
             Profile image
           </Text>
           <ProfilePictureUpload />
@@ -190,7 +190,7 @@ function ProfilePictureUpload() {
         style={{ minHeight: 220, pointerEvents: "none" }}
       >
         <Dropzone.Accept>
-          <IconUpload color={theme.colors.teal[6]} size="3.2rem" />
+          <IconUpload color={theme.colors.blue[6]} size="3.2rem" />
         </Dropzone.Accept>
         <Dropzone.Reject>
           <IconX color={theme.colors.red[6]} size="3.2rem" />

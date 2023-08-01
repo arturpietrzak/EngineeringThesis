@@ -28,6 +28,7 @@ import {
   IconUsers,
   IconBrightness,
   IconLogin,
+  IconSearch,
 } from "@tabler/icons-react";
 import Image from "next/image";
 
@@ -294,6 +295,11 @@ function MainLinks() {
         href: "/",
       },
       {
+        icon: <IconSearch size="2rem" strokeWidth={1} />,
+        label: "Search",
+        href: "/search",
+      },
+      {
         icon: <IconTrendingUp size="2rem" strokeWidth={1} />,
         label: "Trending",
         href: "/trending",
@@ -325,6 +331,11 @@ function MainLinks() {
         icon: <IconHome size="2rem" strokeWidth={1} />,
         label: "Home",
         href: "/",
+      },
+      {
+        icon: <IconSearch size="2rem" strokeWidth={1} />,
+        label: "Search",
+        href: "/search",
       },
       {
         icon: <IconTrendingUp size="2rem" strokeWidth={1} />,

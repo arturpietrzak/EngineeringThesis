@@ -30,7 +30,7 @@ export default function HashtagPage({ hashtag }: HashtagPagePropsType) {
       <Head>
         <title>Grumbler | #{hashtag}</title>
       </Head>
-      <Stack spacing={48}>
+      <Stack spacing={16}>
         <HashtagInfo hashtagName={hashtag} onShowAllChange={setAllPosts} />
         {trendingData ? (
           <PostList

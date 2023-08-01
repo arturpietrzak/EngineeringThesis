@@ -1,7 +1,7 @@
-import { Stack, useMantineTheme } from "@mantine/core";
+import { Group, Stack, Text, useMantineTheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import Link from "@tiptap/extension-link";
+import { Link as TipTapLink } from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import { useEditor } from "@tiptap/react";
@@ -15,6 +15,7 @@ import { PostInfoHeader, PostReactionsFooter } from "./PostList";
 import { RichTextEditor } from "@mantine/tiptap";
 import { ReportPostModal } from "./ReportPostModal";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface PostProps {
   id: string;
@@ -26,6 +27,7 @@ interface PostProps {
   likesCount: number;
   commentsCount: number;
   liked: boolean;
+  hashtags: string[];
   onLikeClick: () => void;
 }
 
@@ -39,6 +41,7 @@ export function Post({
   likesCount,
   commentsCount,
   liked,
+  hashtags,
   onLikeClick,
 }: PostProps) {
   const theme = useMantineTheme();
@@ -56,7 +59,7 @@ export function Post({
       CodeBlockLowlight.configure({
         lowlight,
       }),
-      Link.configure({
+      TipTapLink.configure({
         openOnClick: true,
       }),
       Image.configure({
@@ -106,6 +109,18 @@ export function Post({
         username={username}
         createdAt={createdAt}
       />
+      <Group>
+        {hashtags.length &&
+          hashtags.map((h) => (
+            <Link
+              href={`/hashtag/${h}`}
+              key={h}
+              style={{ zIndex: 2, display: "inline" }}
+            >
+              <Text c="blue.5">#{h}</Text>
+            </Link>
+          ))}
+      </Group>
       <RichTextEditor
         editor={editor}
         sx={{

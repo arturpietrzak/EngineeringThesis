@@ -106,6 +106,7 @@ export const userRouter = createTRPCRouter({
           },
         },
         include: {
+          postHashtag: true,
           postLikes: {
             where: {
               user: {
@@ -169,7 +170,7 @@ export const userRouter = createTRPCRouter({
         },
         posts: postsInDb.map((p) => ({
           id: p.id,
-          createdAt: moment(p.createdAt).format("dd/mm/yyyy, HH:MM:ss"),
+          createdAt: moment(p.createdAt).format("MMMM Do YYYY, HH:mm:ss"),
           userId: p.user.id,
           userImage: p.user.avatar,
           displayName: p.user.displayName ?? "",
@@ -179,6 +180,7 @@ export const userRouter = createTRPCRouter({
           likesCount: p._count.postLikes,
           liked: ctx.session !== null && p.postLikes.length !== 0,
           likeButtonActive: ctx.session !== null,
+          hashtags: p.postHashtag.map((h) => h.hashtagName),
         })),
       };
     }),
@@ -241,4 +243,128 @@ export const userRouter = createTRPCRouter({
       bio: userInDb.bio ?? "",
     };
   }),
+  search: publicProcedure
+    .input(z.object({ phrase: z.string() }))
+    .query(async ({ ctx, input: { phrase } }) => {
+      if (phrase.length < 3) {
+        return {
+          users: undefined,
+          tags: undefined,
+          posts: undefined,
+        };
+      }
+
+      if (phrase.at(0) === "@") {
+        const users = await ctx.prisma.user.findMany({
+          take: 20,
+          where: {
+            username: {
+              contains: phrase.substring(1),
+            },
+          },
+          orderBy: {
+            followedBy: {
+              _count: "desc",
+            },
+          },
+          include: {
+            _count: {
+              select: {
+                posts: true,
+                followedBy: true,
+              },
+            },
+          },
+        });
+
+        return {
+          users: users.map((u) => ({
+            username: u.username ?? "",
+            displayName: u.displayName ?? "",
+            posts: u._count.posts,
+            followers: u._count.followedBy,
+            imageUrl: u.avatar,
+          })),
+          tags: undefined,
+          posts: undefined,
+        };
+      } else if (phrase.at(0) === "#") {
+        const trendingMinDate = new Date();
+        trendingMinDate.setDate(trendingMinDate.getDate() - 7);
+
+        const hashtagsInDb: { hashtagName: string; posts: string }[] = await ctx
+          .prisma.$queryRaw`
+          SELECT h.hashtagName, CAST(COUNT(h.hashtagName) as CHAR(50)) AS posts
+          FROM Hashtag as h
+          RIGHT JOIN PostHashtag as ph
+          ON h.hashtagName = ph.hashtagName
+          LEFT JOIN Post as p
+          ON p.id = ph.postId
+          WHERE p.createdAt > ${moment(trendingMinDate).format(
+            "YYYY-MM-DD, HH:mm:ss.SSS"
+          )}
+          AND INSTR(h.hashtagName, ${phrase.substring(1)}) > 0
+          GROUP BY h.hashtagName
+          `;
+
+        return {
+          users: undefined,
+          tags: hashtagsInDb.map((row) => ({
+            hashtagName: row["hashtagName"],
+            posts: Number(row["posts"]),
+          })),
+          posts: undefined,
+        };
+      } else {
+        const postsInDb = await ctx.prisma.post.findMany({
+          orderBy: [
+            {
+              postLikes: {
+                _count: "desc",
+              },
+            },
+            {
+              createdAt: "desc",
+            },
+          ],
+          take: 25,
+          include: {
+            user: true,
+            postHashtag: true,
+            postLikes: {
+              where: {
+                userId: ctx.session?.user.id,
+              },
+            },
+            _count: {
+              select: { comments: true, postLikes: true },
+            },
+          },
+          where: {
+            content: {
+              contains: phrase,
+            },
+          },
+        });
+
+        return {
+          users: undefined,
+          tags: undefined,
+          posts: postsInDb.map((p) => ({
+            id: p.id,
+            createdAt: moment(p.createdAt).format("MMMM Do YYYY, HH:mm:ss"),
+            userId: p.user.id,
+            userImage: p.user.avatar,
+            displayName: p.user.displayName ?? "",
+            username: p.user.username ?? "",
+            content: p.content,
+            commentsCount: p._count.comments,
+            likesCount: p._count.postLikes,
+            liked: ctx.session !== null && p.postLikes.length !== 0,
+            likeButtonActive: ctx.session !== null,
+            hashtags: p.postHashtag.map((h) => h.hashtagName),
+          })),
+        };
+      }
+    }),
 });

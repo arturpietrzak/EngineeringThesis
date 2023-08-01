@@ -25,6 +25,7 @@ export const postRouter = createTRPCRouter({
         },
         take: limit + 1,
         include: {
+          postHashtag: true,
           user: true,
           postLikes: {
             where: {
@@ -50,7 +51,7 @@ export const postRouter = createTRPCRouter({
         nextCursor: nextCursor,
         posts: postsInDb.map((p) => ({
           id: p.id,
-          createdAt: moment(p.createdAt).format("dd/mm/yyyy, HH:MM:ss"),
+          createdAt: moment(p.createdAt).format("MMMM Do YYYY, HH:mm:ss"),
           userId: p.user.id,
           userImage: p.user.avatar,
           displayName: p.user.displayName ?? "",
@@ -60,6 +61,7 @@ export const postRouter = createTRPCRouter({
           likesCount: p._count.postLikes,
           liked: ctx.session !== null && p.postLikes.length !== 0,
           likeButtonActive: ctx.session !== null,
+          hashtags: p.postHashtag.map((h) => h.hashtagName),
         })),
       };
     }),
@@ -75,6 +77,7 @@ export const postRouter = createTRPCRouter({
           id: id,
         },
         include: {
+          postHashtag: true,
           user: true,
           postLikes: {
             where: {
@@ -109,7 +112,9 @@ export const postRouter = createTRPCRouter({
       return {
         post: {
           id: postInDb.id,
-          createdAt: moment(postInDb.createdAt).format("dd/mm/yyyy, HH:MM:ss"),
+          createdAt: moment(postInDb.createdAt).format(
+            "MMMM Do YYYY, HH:mm:ss"
+          ),
           userId: postInDb.user.id,
           imageUrl: postInDb.user.avatar ?? "/defaultUserImage.webp",
           displayName: postInDb.user.displayName ?? "",
@@ -119,16 +124,17 @@ export const postRouter = createTRPCRouter({
           likesCount: postInDb._count.postLikes,
           liked: ctx.session !== null && postInDb.postLikes.length !== 0,
           likeButtonActive: ctx.session !== null,
+          hashtags: postInDb.postHashtag.map((h) => h.hashtagName),
         },
         comments: postInDb.comments.map((c) => ({
           commentId: c.id,
           content: c.content,
-          createdAt: moment(c.createdAt).format("dd/mm/yyyy, HH:MM:ss"),
+          createdAt: moment(c.createdAt).format("MMMM Do YYYY, HH:mm:ss"),
           displayName: c.user.displayName ?? "",
           username: c.user.username ?? "",
           userImgUrl: c.user.avatar ?? "/defaultUserImage.webp",
           userId: c.userId ?? "",
-          liked: c.commentLike.length != 0,
+          liked: c.user.username === ctx.session?.user.username,
           likeAmount: c.commentLike.length,
         })),
       };
@@ -229,6 +235,7 @@ export const postRouter = createTRPCRouter({
         },
         include: {
           user: true,
+          postHashtag: true,
           postLikes: {
             where: {
               userId: ctx.session?.user.id,
@@ -266,7 +273,7 @@ export const postRouter = createTRPCRouter({
         })),
         posts: postsInDb.map((p) => ({
           id: p.id,
-          createdAt: moment(p.createdAt).format("dd/mm/yyyy, HH:MM:ss"),
+          createdAt: moment(p.createdAt).format("MMMM Do YYYY, HH:mm:ss"),
           userId: p.user.id,
           userImage: p.user.avatar,
           displayName: p.user.displayName ?? "",
@@ -276,6 +283,7 @@ export const postRouter = createTRPCRouter({
           likesCount: p._count.postLikes,
           liked: ctx.session !== null && p.postLikes.length !== 0,
           likeButtonActive: ctx.session !== null,
+          hashtags: p.postHashtag.map((h) => h.hashtagName),
         })),
       };
     }),
@@ -315,6 +323,7 @@ export const postRouter = createTRPCRouter({
           postHashtag: { some: { hashtagName } },
         },
         include: {
+          postHashtag: true,
           user: true,
           postLikes: {
             where: {
@@ -335,7 +344,7 @@ export const postRouter = createTRPCRouter({
         nextPage: nextPage,
         posts: postsInDb.map((p) => ({
           id: p.id,
-          createdAt: moment(p.createdAt).format("dd/mm/yyyy, HH:MM:ss"),
+          createdAt: moment(p.createdAt).format("MMMM Do YYYY, HH:mm:ss"),
           userId: p.user.id,
           userImage: p.user.avatar,
           displayName: p.user.displayName ?? "",
@@ -345,6 +354,7 @@ export const postRouter = createTRPCRouter({
           likesCount: p._count.postLikes,
           liked: ctx.session !== null && p.postLikes.length !== 0,
           likeButtonActive: ctx.session !== null,
+          hashtags: p.postHashtag.map((h) => h.hashtagName),
         })),
       };
     }),
