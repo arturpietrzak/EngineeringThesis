@@ -2,7 +2,8 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { errorMessages } from "~/utils/errorMessages";
 
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import moment from "moment";
 
 export const commentRouter = createTRPCRouter({
   comment: protectedProcedure
@@ -108,5 +109,69 @@ export const commentRouter = createTRPCRouter({
           },
         });
       }
+    }),
+  getCommentsByPostId: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+        postId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 25;
+      const { cursor } = input;
+      const postId = input.postId;
+
+      const commentsInDb = await ctx.prisma.comment.findMany({
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: [
+          {
+            commentLike: { _count: "desc" },
+          },
+          {
+            createdAt: "desc",
+          },
+        ],
+        take: limit + 1,
+        where: {
+          postId: postId,
+        },
+        include: {
+          user: {
+            select: {
+              displayName: true,
+              avatar: true,
+              username: true,
+            },
+          },
+          commentLike: {
+            where: {
+              userId: ctx.session?.user.id,
+            },
+          },
+        },
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (commentsInDb.length > limit) {
+        const nextItem = commentsInDb.pop();
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        nextCursor,
+        comments: commentsInDb.map((c) => ({
+          commentId: c.id,
+          content: c.content,
+          createdAt: moment(c.createdAt).format("MMMM Do YYYY, HH:mm:ss"),
+          displayName: c.user.displayName ?? "",
+          username: c.user.username ?? "",
+          userImgUrl: c.user.avatar ?? "/defaultUserImage.webp",
+          userId: c.userId ?? "",
+          liked: ctx.session !== null && c.commentLike.length !== 0,
+          likeAmount: c.commentLike.length,
+        })),
+      };
     }),
 });

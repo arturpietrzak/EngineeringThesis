@@ -26,7 +26,7 @@ export default function TrendingPage() {
   return (
     <>
       <Head>
-        <title>Grumbler | Trending</title>
+        <title>Knowhow | Trending</title>
       </Head>
       <Stack spacing={16}>
         <HashtagList

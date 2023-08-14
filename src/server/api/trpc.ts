@@ -123,6 +123,35 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   });
 });
 
+const enforceUserIsAdmin = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.session || !ctx.session.user) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: errorMessages.FORBIDDEN,
+    });
+  }
+
+  const userInDb = await ctx.prisma.user.findUnique({
+    where: {
+      id: ctx.session?.user.id,
+    },
+  });
+
+  if (userInDb?.role !== "ADMIN") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: errorMessages.FORBIDDEN,
+    });
+  }
+
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
 /**
  * Protected (authenticated) procedure
  *
@@ -132,3 +161,4 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+export const adminProcedure = t.procedure.use(enforceUserIsAdmin);

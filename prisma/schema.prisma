@@ -105,6 +105,7 @@ model Template {
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    String
     content   String   @db.Text
+    name      String   @db.Text
 
     @@index([userId])
 }

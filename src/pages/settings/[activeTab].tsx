@@ -2,6 +2,7 @@ import Head from "next/head";
 import { useForm, zodResolver } from "@mantine/form";
 import {
   Button,
+  Flex,
   Group,
   Stack,
   Tabs,
@@ -13,11 +14,12 @@ import {
 import { z } from "zod";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
-import { IconPhoto, IconUpload, IconX } from "@tabler/icons-react";
+import { IconPhoto, IconPlus, IconUpload, IconX } from "@tabler/icons-react";
 import { Loader } from "~/components/Loader";
 import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
 import { useState } from "react";
 import { notifications } from "@mantine/notifications";
+import { TemplateList } from "~/components/TemplateList";
 
 const schema = z.object({
   displayName: z
@@ -66,7 +68,11 @@ export default function SettingsPage() {
   });
   const router = useRouter();
   const updateSettingsMutation = api.user.updateSettings.useMutation();
-  const { data: settingsData, isFetching } = api.user.getSettings.useQuery(
+  const {
+    data: settingsData,
+    isFetching,
+    refetch,
+  } = api.user.getSettings.useQuery(
     {},
     {
       onSuccess: (data) => {
@@ -78,6 +84,7 @@ export default function SettingsPage() {
       },
     }
   );
+  const deleteTemplateMutation = api.template.deleteTemplate.useMutation();
 
   if (!settingsData || isFetching) {
     return <Loader />;
@@ -86,12 +93,17 @@ export default function SettingsPage() {
   return (
     <>
       <Head>
-        <title>Grumbler | Settings</title>
+        <title>Knowhow | Settings</title>
       </Head>
-      <Tabs defaultValue="general">
+      <Tabs
+        defaultValue="general"
+        value={router.query.activeTab as string}
+        onTabChange={(value) => router.push(`/settings/${value ?? ""}`)}
+      >
         <Tabs.List>
           <Tabs.Tab value="general">Gallery</Tabs.Tab>
           <Tabs.Tab value="image">Image</Tabs.Tab>
+          <Tabs.Tab value="templates">Templates</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="general" pt="xs">
           <form
@@ -125,6 +137,29 @@ export default function SettingsPage() {
             Profile image
           </Text>
           <ProfilePictureUpload />
+        </Tabs.Panel>
+        <Tabs.Panel value="templates" pt="xs">
+          <Stack>
+            <Button
+              w={40}
+              h={40}
+              p={0}
+              onClick={(e) => {
+                e.preventDefault();
+                void router.push("/new-template");
+              }}
+              disabled={settingsData.templates.length >= 25}
+            >
+              <IconPlus />
+            </Button>
+            <TemplateList
+              templates={settingsData.templates}
+              onDelete={async (id) => {
+                await deleteTemplateMutation.mutateAsync({ id });
+                await refetch();
+              }}
+            />
+          </Stack>
         </Tabs.Panel>
       </Tabs>
     </>

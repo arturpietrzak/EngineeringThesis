@@ -84,22 +84,6 @@ export const postRouter = createTRPCRouter({
               userId: ctx.session?.user.id,
             },
           },
-          comments: {
-            include: {
-              user: {
-                select: {
-                  displayName: true,
-                  avatar: true,
-                  username: true,
-                },
-              },
-              commentLike: {
-                where: {
-                  userId: ctx.session?.user.id,
-                },
-              },
-            },
-          },
           _count: {
             select: {
               comments: true,
@@ -126,17 +110,6 @@ export const postRouter = createTRPCRouter({
           likeButtonActive: ctx.session !== null,
           hashtags: postInDb.postHashtag.map((h) => h.hashtagName),
         },
-        comments: postInDb.comments.map((c) => ({
-          commentId: c.id,
-          content: c.content,
-          createdAt: moment(c.createdAt).format("MMMM Do YYYY, HH:mm:ss"),
-          displayName: c.user.displayName ?? "",
-          username: c.user.username ?? "",
-          userImgUrl: c.user.avatar ?? "/defaultUserImage.webp",
-          userId: c.userId ?? "",
-          liked: c.user.username === ctx.session?.user.username,
-          likeAmount: c.commentLike.length,
-        })),
       };
     }),
   getByIdToUpdate: publicProcedure

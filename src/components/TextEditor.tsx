@@ -12,7 +12,7 @@ import { Button, Flex, Input, Stack, Text } from "@mantine/core";
 import { IconMessage2Code, IconPhoto } from "@tabler/icons-react";
 import { useForm, zodResolver } from "@mantine/form";
 import { z } from "zod";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 function InsertImageControl() {
   const { editor } = useRichTextEditorContext();
@@ -197,6 +197,13 @@ export function TextEditor({
     },
     content: initialValue,
   });
+
+  useEffect(() => {
+    if (initialValue !== undefined) {
+      editor?.commands.setContent(initialValue);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialValue]);
 
   return (
     <form

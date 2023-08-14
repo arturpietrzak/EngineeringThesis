@@ -235,12 +235,16 @@ export const userRouter = createTRPCRouter({
       where: {
         username: ctx.session.user.username,
       },
+      include: {
+        templates: true,
+      },
     });
 
     return {
       username: userInDb.username ?? "",
       displayName: userInDb.displayName ?? "",
       bio: userInDb.bio ?? "",
+      templates: userInDb.templates.map((t) => ({ name: t.name, id: t.id })),
     };
   }),
   search: publicProcedure
@@ -300,10 +304,7 @@ export const userRouter = createTRPCRouter({
           ON h.hashtagName = ph.hashtagName
           LEFT JOIN Post as p
           ON p.id = ph.postId
-          WHERE p.createdAt > ${moment(trendingMinDate).format(
-            "YYYY-MM-DD, HH:mm:ss.SSS"
-          )}
-          AND INSTR(h.hashtagName, ${phrase.substring(1)}) > 0
+          WHERE INSTR(h.hashtagName, ${phrase.substring(1)}) > 0
           GROUP BY h.hashtagName
           `;
 

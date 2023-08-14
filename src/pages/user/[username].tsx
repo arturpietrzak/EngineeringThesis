@@ -39,7 +39,7 @@ export default function UserPage({ username }: UserPagePropsType) {
   return (
     <>
       <Head>
-        <title>Grumbler | {userData.pages[0]?.user.displayName}</title>
+        <title>Knowhow | {userData.pages[0]?.user.displayName}</title>
       </Head>
       <Stack spacing={16}>
         <UserHeader
@@ -125,7 +125,7 @@ function UserHeader({
                   {displayName}
                 </Text>
                 {isUserOwner && (
-                  <Link href="/settings">
+                  <Link href="/settings/general">
                     <Text sx={{ lineHeight: 0 }}>
                       <IconSettings size={24} strokeWidth={2} />
                     </Text>

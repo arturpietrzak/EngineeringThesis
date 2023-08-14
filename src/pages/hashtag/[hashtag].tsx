@@ -28,7 +28,7 @@ export default function HashtagPage({ hashtag }: HashtagPagePropsType) {
   return (
     <>
       <Head>
-        <title>Grumbler | #{hashtag}</title>
+        <title>Knowhow | #{hashtag}</title>
       </Head>
       <Stack spacing={16}>
         <HashtagInfo hashtagName={hashtag} onShowAllChange={setAllPosts} />

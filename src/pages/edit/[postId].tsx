@@ -29,7 +29,7 @@ export default function PostPage({ postId }: EditPagePropsType) {
   return (
     <>
       <Head>
-        <title>Grumbler | Edit post</title>
+        <title>Knowhow | Edit post</title>
       </Head>
       <Stack spacing={16}>
         <TextEditor

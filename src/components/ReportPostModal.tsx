@@ -34,6 +34,7 @@ export function ReportPostModal({
             reason: values.reason,
             category: values.category,
           });
+          form.reset();
           onClose();
         })}
       >

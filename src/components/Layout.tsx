@@ -188,6 +188,7 @@ interface MainLinkProps {
   icon: React.ReactNode;
   label: string;
   href: string;
+  pathGroup?: string;
   active?: boolean;
 }
 
@@ -257,6 +258,11 @@ function MainLinks() {
         href: "/",
       },
       {
+        icon: <IconSearch size="2rem" strokeWidth={1} />,
+        label: "Search",
+        href: "/search",
+      },
+      {
         icon: <IconTrendingUp size="2rem" strokeWidth={1} />,
         label: "Trending",
         href: "/trending",
@@ -264,7 +270,8 @@ function MainLinks() {
       {
         icon: <IconSettings size="2rem" strokeWidth={1} />,
         label: "Settings",
-        href: "/settings",
+        href: "/settings/general",
+        pathGroup: "/settings/",
       },
       {
         icon: (
@@ -285,6 +292,7 @@ function MainLinks() {
         icon: <IconServerCog size="2rem" strokeWidth={1} />,
         label: "Admin panel",
         href: "/admin/reports",
+        pathGroup: "/admin/",
       },
     ];
   } else if (session.data?.user.role === "USER") {
@@ -307,7 +315,8 @@ function MainLinks() {
       {
         icon: <IconSettings size="2rem" strokeWidth={1} />,
         label: "Settings",
-        href: "/settings",
+        href: "/settings/general",
+        pathGroup: "/settings/",
       },
       {
         icon: (
@@ -351,7 +360,11 @@ function MainLinks() {
         <MainLink
           {...link}
           key={link.label}
-          active={router.asPath === link.href}
+          active={
+            link.pathGroup
+              ? router.asPath.startsWith(link.pathGroup)
+              : router.asPath === link.href
+          }
         />
       ))}
     </>

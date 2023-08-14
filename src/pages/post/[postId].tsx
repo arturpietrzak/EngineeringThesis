@@ -4,6 +4,7 @@ import Head from "next/head";
 import { useState } from "react";
 import { CommentInput } from "~/components/CommentInput";
 import { CommentList } from "~/components/CommentList";
+import InfiniteScrollTrigger from "~/components/InfiniteScrollTrigger";
 import { Loader } from "~/components/Loader";
 import { Post } from "~/components/Post";
 import { api } from "~/utils/api";
@@ -13,12 +14,23 @@ interface PostPagePropsType {
 }
 
 export default function PostPage({ postId }: PostPagePropsType) {
-  const { data: postData, refetch } = api.post.getById.useQuery(
+  const { data: postData } = api.post.getById.useQuery(
     { id: postId },
     {
       onSuccess(data) {
         setIsLiked(data.post.liked);
       },
+    }
+  );
+  const {
+    data: commentsData,
+    refetch: commentRefetch,
+    fetchNextPage,
+    isFetching,
+  } = api.comment.getCommentsByPostId.useInfiniteQuery(
+    { postId },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
     }
   );
   const likePostMutation = api.post.like.useMutation();
@@ -32,7 +44,7 @@ export default function PostPage({ postId }: PostPagePropsType) {
   return (
     <>
       <Head>
-        <title>Grumbler | {postData.post.displayName}&apos;s post</title>
+        <title>Knowhow | {postData.post.displayName}&apos;s post</title>
       </Head>
       <Stack spacing={16}>
         <Post
@@ -57,9 +69,20 @@ export default function PostPage({ postId }: PostPagePropsType) {
           }
           liked={isLiked}
         />
-        <CommentInput postId={postId} onSubmit={refetch} />
-        {postData.comments && (
-          <CommentList comments={postData.comments} refetch={refetch} />
+        <CommentInput postId={postId} onSubmit={commentRefetch} />
+        {commentsData ? (
+          <CommentList
+            comments={commentsData.pages.map((c) => c.comments).flat(1)}
+            refetch={commentRefetch}
+          />
+        ) : (
+          <Loader />
+        )}
+        {postData && (
+          <InfiniteScrollTrigger
+            isFetching={isFetching}
+            onScreenEnter={fetchNextPage}
+          />
         )}
       </Stack>
     </>

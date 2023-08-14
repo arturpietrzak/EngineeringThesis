@@ -32,7 +32,9 @@ export function HashtagList({ hashtags, trending }: HashtagListProps) {
             label={
               <Stack spacing={0}>
                 <Text size="lg">{`#${h.hashtagName}`}</Text>
-                <Text c="dimmed">{h.posts} posts last week</Text>
+                <Text c="dimmed">
+                  {h.posts} post{h.posts > 1 && "s"} {trending && "last week"}
+                </Text>
               </Stack>
             }
             component={Link}
