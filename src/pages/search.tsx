@@ -1,4 +1,4 @@
-import { MediaQuery, Stack, Text, TextInput } from "@mantine/core";
+import { Stack, Text, TextInput } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import Head from "next/head";
 import { useState } from "react";

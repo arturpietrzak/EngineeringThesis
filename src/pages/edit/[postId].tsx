@@ -2,11 +2,7 @@ import { Stack } from "@mantine/core";
 import type { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState } from "react";
-import { CommentInput } from "~/components/CommentInput";
-import { CommentList } from "~/components/CommentList";
 import { Loader } from "~/components/Loader";
-import { Post } from "~/components/Post";
 import { TextEditor } from "~/components/TextEditor";
 import { api } from "~/utils/api";
 
@@ -15,7 +11,7 @@ interface EditPagePropsType {
 }
 
 export default function PostPage({ postId }: EditPagePropsType) {
-  const { data: postData, refetch } = api.post.getByIdToUpdate.useQuery({
+  const { data: postData } = api.post.getByIdToUpdate.useQuery({
     id: postId,
   });
 
