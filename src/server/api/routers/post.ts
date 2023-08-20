@@ -232,6 +232,7 @@ export const postRouter = createTRPCRouter({
         "YYYY-MM-DD, HH:mm:ss.SSS"
       )}
       GROUP BY h.hashtagName
+      ORDER BY COUNT(*) DESC
       LIMIT 5
       `;
 
