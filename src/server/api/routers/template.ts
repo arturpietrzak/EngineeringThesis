@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { errorMessages } from "~/utils/errorMessages";
+import { predefinedTemplates } from "~/utils/predefinedTemplates";
 
 export const templateRouter = createTRPCRouter({
   getTemplates: protectedProcedure
@@ -13,11 +14,12 @@ export const templateRouter = createTRPCRouter({
 
       return {
         templates: [
-          { content: "<p>Test</p>", name: "test", id: "idtest" },
+          ...predefinedTemplates,
           ...templatesInDb.map(({ content, name, id }) => ({
             content,
             name,
             id,
+            group: "Your templates",
           })),
         ],
       };

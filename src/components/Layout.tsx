@@ -111,7 +111,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   <Button
                     style={{ flexGrow: 1 }}
                     onClick={() => {
-                      void signIn();
+                      void signIn("auth0");
                     }}
                   >
                     <IconLogin size="1.25rem" style={{ marginRight: 4 }} />

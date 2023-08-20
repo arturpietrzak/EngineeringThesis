@@ -12,7 +12,7 @@ import { Button, Flex, Input, Stack, Text } from "@mantine/core";
 import { IconMessage2Code, IconPhoto } from "@tabler/icons-react";
 import { useForm, zodResolver } from "@mantine/form";
 import { z } from "zod";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function InsertImageControl() {
   const { editor } = useRichTextEditorContext();
@@ -204,11 +204,13 @@ export function TextEditor({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialValue]);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   return (
     <form
       onSubmit={form.onSubmit((values) => {
         onPost(editor?.getHTML() ?? "", String(values["hashtags"]));
+        setIsSubmitted(true);
       })}
     >
       <Stack>
@@ -269,7 +271,9 @@ export function TextEditor({
           </Stack>
         )}
         <Flex justify="space-between" direction="row-reverse">
-          <Button type="submit">{isEdit ? "Save changes" : "Post"}</Button>
+          <Button disabled={isSubmitted} type="submit">
+            {isEdit ? "Save changes" : "Post"}
+          </Button>
         </Flex>
       </Stack>
     </form>

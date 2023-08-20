@@ -25,7 +25,11 @@ export default function NewPostPage() {
           placeholder="Start with..."
           nothingFound="No templates"
           data={
-            data?.templates.map((t) => ({ value: t.id, label: t.name })) ?? []
+            data?.templates.map(({ id, name, group }) => ({
+              value: id,
+              label: name,
+              group,
+            })) ?? []
           }
           onChange={(value) => {
             setInitialValue(
