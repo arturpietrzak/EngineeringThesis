@@ -5,6 +5,7 @@ import { useState } from "react";
 import InfiniteScrollTrigger from "~/components/InfiniteScrollTrigger";
 import { Loader } from "~/components/Loader";
 import { PostList } from "~/components/PostList";
+import { TrendingChart } from "~/components/TrendingChart";
 import { api } from "~/utils/api";
 
 interface HashtagPagePropsType {
@@ -13,6 +14,9 @@ interface HashtagPagePropsType {
 
 export default function HashtagPage({ hashtag }: HashtagPagePropsType) {
   const [allPosts, setAllPosts] = useState(false);
+  const { data: hashtagChartData } = api.post.getHashtagChartData.useQuery({
+    hashtagName: hashtag,
+  });
   const {
     data: trendingData,
     fetchNextPage,
@@ -31,7 +35,13 @@ export default function HashtagPage({ hashtag }: HashtagPagePropsType) {
         <title>Knowhow | #{hashtag}</title>
       </Head>
       <Stack spacing={16}>
-        <HashtagInfo hashtagName={hashtag} onShowAllChange={setAllPosts} />
+        {hashtagChartData && (
+          <HashtagInfo
+            hashtagChartData={hashtagChartData.chartData}
+            hashtagName={hashtag}
+            onShowAllChange={setAllPosts}
+          />
+        )}
         {trendingData ? (
           <PostList
             refetch={refetch}
@@ -61,9 +71,14 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => ({
 interface HashtagInfoProps {
   hashtagName: string;
   onShowAllChange: (showAll: boolean) => void;
+  hashtagChartData: { name: string; uv: number }[];
 }
 
-function HashtagInfo({ hashtagName, onShowAllChange }: HashtagInfoProps) {
+function HashtagInfo({
+  hashtagName,
+  onShowAllChange,
+  hashtagChartData,
+}: HashtagInfoProps) {
   return (
     <Stack
       sx={(t) => ({
@@ -100,6 +115,7 @@ function HashtagInfo({ hashtagName, onShowAllChange }: HashtagInfoProps) {
           },
         })}
       />
+      <TrendingChart chartData={hashtagChartData} />
     </Stack>
   );
 }

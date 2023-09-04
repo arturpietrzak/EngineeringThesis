@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import moment from "moment";
-import { z } from "zod";
+import { string, z } from "zod";
 import { errorMessages } from "../../../utils/errorMessages";
 import { extractUniqueHashtags } from "~/utils/helpers";
 
@@ -556,5 +556,46 @@ export const postRouter = createTRPCRouter({
           },
         });
       }
+    }),
+  getHashtagChartData: publicProcedure
+    .input(z.object({ hashtagName: z.string() }))
+    .query(async ({ ctx, input: { hashtagName } }) => {
+      const hashtagsInDb: { monthYear: string; count: number }[] = await ctx
+        .prisma.$queryRaw`
+        SELECT LastMonths.dt as monthYear, COUNT(p.createdAt) as count
+        FROM
+        (
+            SELECT DATE_FORMAT(CURDATE(), '%m %Y') AS dt UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%m %Y') UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 2 MONTH), '%m %Y') UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 3 MONTH), '%m %Y') UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 4 MONTH), '%m %Y') UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 5 MONTH), '%m %Y') UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 6 MONTH), '%m %Y') UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 7 MONTH), '%m %Y') UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 8 MONTH), '%m %Y') UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 9 MONTH), '%m %Y') UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 10 MONTH), '%m %Y') UNION ALL
+            SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 11 MONTH), '%m %Y')
+        ) LastMonths
+        LEFT JOIN
+          (
+          SELECT * FROM Post as p
+          RIGHT JOIN PostHashtag as ph
+          ON p.id = ph.postId
+          WHERE ph.hashtagName = ${hashtagName}
+          ) p
+        ON DATE_FORMAT(p.createdAt, '%m %Y') = LastMonths.dt
+        GROUP BY LastMonths.dt
+      `;
+
+      const results = hashtagsInDb
+        .map(({ count, monthYear }) => ({
+          name: monthYear,
+          uv: Number(count),
+        }))
+        .reverse();
+
+      return { chartData: results };
     }),
 });
