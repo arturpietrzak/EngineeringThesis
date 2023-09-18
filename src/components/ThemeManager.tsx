@@ -35,6 +35,7 @@ export function ThemeManager({ children }: { children: React.ReactNode }) {
           colorScheme: theme,
           fontFamily: "Roboto Flex, sans-serif",
           primaryColor: "blue",
+          defaultRadius: 'xs';
           components: {
             Table: {
               defaultProps: {
