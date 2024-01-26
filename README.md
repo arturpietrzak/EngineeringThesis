@@ -1,28 +1,21 @@
-# Create T3 App
+# Engineering thesis
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+This is the source code of an Engineering Thesis created by [@arturpietrzak](https://github.com/arturpietrzak)
 
-## What's next? How do I make an app with this?
+## How to start
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+To start the project, [Node.js](https://nodejs.org/en) and [npm](https://www.npmjs.com/) are required.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+After downloading the required tools, install all dependencies using by running:
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+### `npm i`
 
-## Learn More
+Next, create `.env` file in the root directory. All required fields are described in the `src/env.mjs` file.
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Finally, start the application by running: 
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### `npm start`
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+The main page:
 
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+<img alt="image" src="https://github.com/arturpietrzak/EngineeringThesis/assets/69943356/b44f9ef1-0e08-476e-9eea-d8f6c841b1de">
